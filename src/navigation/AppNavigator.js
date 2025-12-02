@@ -38,7 +38,10 @@ const AppNavigator = () => {
       <Stack.Screen 
         name={SCREENS.INFO} 
         component={InfoPage}
-        options={{ animation: 'slide_from_right' }}
+        options={{ 
+          animation: 'fade_from_bottom',
+          animationDuration: 500,
+        }}
       />
       
       {/* Auth Flow */}

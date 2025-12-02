@@ -20,6 +20,17 @@ export const styles = StyleSheet.create({
     zIndex: 0,
   },
 
+  // Sol üst oval
+  shapeTopLeft: {
+    position: 'absolute',
+    top: 50,
+    left: -80,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: SHAPE_COLOR,
+  },
+
   // Sağ üst büyük oval
   shapeTopRight: {
     position: 'absolute',
@@ -77,13 +88,19 @@ export const styles = StyleSheet.create({
   content: {
     flex: 1,
     marginTop: 130,
-    paddingHorizontal: 24,
     zIndex: 2,
+  },
+
+  slide: {
+    flex: 1,
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    paddingHorizontal: 24,
   },
 
   textGroup: {
-    width: '85%',
+    width: '90%',
+    alignSelf: 'center',
   },
 
   title: {
@@ -95,6 +112,7 @@ export const styles = StyleSheet.create({
 
   title2: {
     ...typography.h3,
+    fontSize: 24,
     color: colors.textWhite,
     marginBottom: 20,
     textAlign: 'left',
@@ -104,7 +122,7 @@ export const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textWhite,
     marginTop: 24,
-    lineHeight: 24,
+    lineHeight: 20,
     opacity: 0.95,
     textAlign: 'left',
   },
@@ -127,7 +145,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 10,
   },
 
   dot: {
