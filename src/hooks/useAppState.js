@@ -47,3 +47,10 @@ const useAppState = (onForeground, onBackground) => {
 export default useAppState;
 
 
+
+
+
+
+
+
+

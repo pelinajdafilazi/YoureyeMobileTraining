@@ -3,6 +3,7 @@
 
 import apiClient from './client';
 import { API } from '../../constants';
+import storageService from '../storage';
 
 /**
  * Auth Service
@@ -11,19 +12,30 @@ import { API } from '../../constants';
 const authService = {
   /**
    * Login user
-   * @param {string} email - User email
+   * @param {string} username - Kullanıcı adı (username)
    * @param {string} password - User password
-   * @returns {Promise<{user: object, token: string}>}
+   * @returns {Promise<{accessToken: string, expiresIn: number, message: string, isAdmin: boolean, id: string}>}
    */
-  login: async (email, password) => {
+  login: async (username, password) => {
     const response = await apiClient.post(API.ENDPOINTS.LOGIN, {
-      email,
+      username,
       password,
     });
     
-    // Set token for future requests
-    if (response.token) {
-      apiClient.setAuthToken(response.token);
+    // Set accessToken for future requests and save to storage
+    if (response.accessToken) {
+      apiClient.setAuthToken(response.accessToken);
+      // Save token to AsyncStorage for persistence
+      await storageService.auth.setToken(response.accessToken);
+      // Save user data if available
+      if (response.id || response.isAdmin !== undefined) {
+        await storageService.auth.setUser({
+          id: response.id,
+          username,
+          isAdmin: response.isAdmin,
+          message: response.message,
+        });
+      }
     }
     
     return response;
@@ -53,6 +65,9 @@ const authService = {
       await apiClient.post(API.ENDPOINTS.LOGOUT);
     } finally {
       apiClient.setAuthToken(null);
+      // Clear stored token and user data
+      await storageService.auth.removeToken();
+      await storageService.auth.removeUser();
     }
   },
 

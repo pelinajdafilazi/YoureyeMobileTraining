@@ -18,11 +18,15 @@ import Svg, { Path, G } from 'react-native-svg';
 // Utils
 import { isEmpty } from '../../utils';
 
+// Services
+import { authService } from '../../services/api';
+
 // Assets
 import logo from '../../assets/logo/logo.png';
 
 // Styles
 import { styles } from './styles';
+import { SCREENS } from '../../constants';
 
 /**
  * Eye Icon for password visibility toggle
@@ -43,7 +47,6 @@ const EyeIcon = ({ visible, color = '#FF7B00' }) => (
 
 /**
  * Login Page
- * User authentication screen
  */
 const LoginPage = ({ navigation }) => {
   const [username, setUsername] = useState('');
@@ -53,7 +56,7 @@ const LoginPage = ({ navigation }) => {
   const [errors, setErrors] = useState({});
   const [focusedInput, setFocusedInput] = useState(null);
 
-  // Validate form
+  // Form validation
   const validateForm = useCallback(() => {
     const newErrors = {};
 
@@ -69,25 +72,41 @@ const LoginPage = ({ navigation }) => {
     return Object.keys(newErrors).length === 0;
   }, [username, password]);
 
-  // Handle login
+  /**
+   * Login handler - Connects to backend API via Swagger UI
+   */
   const handleLogin = useCallback(async () => {
     if (!validateForm()) return;
 
     setLoading(true);
+    setErrors({});
+
     try {
-      console.log('Login with:', username, password);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      Alert.alert('Başarılı', 'Giriş yapıldı!');
+      const response = await authService.login(username, password);
+      
+      // Login successful - navigate to home
+      // Success message can be shown on HomePage if needed
+      if (response && response.accessToken) {
+        navigation.replace(SCREENS.HOME);
+      }
     } catch (error) {
-      Alert.alert('Hata', error.message || 'Giriş yapılamadı');
+      // Handle API errors
+      // Backend returns text/plain for errors, so check error.message first
+      const errorMessage = error?.message || error?.data?.message || 'Kullanıcı adı veya şifre yanlış!';
+      Alert.alert("Hata", errorMessage);
+      
+      // Set field errors if provided by backend
+      if (error?.data?.errors) {
+        setErrors(error.data.errors);
+      }
     } finally {
       setLoading(false);
     }
-  }, [username, password, validateForm]);
+  }, [username, password, validateForm, navigation]);
 
-  // Handle forgot password
+  // Forgot password
   const handleForgotPassword = () => {
-    Alert.alert('Şifremi Unuttum', 'Şifre sıfırlama bağlantısı e-posta adresinize gönderilecektir.');
+    Alert.alert('Şifremi Unuttum', 'Şifre sıfırlama bağlantısı gönderilecek.');
   };
 
   return (
@@ -97,23 +116,21 @@ const LoginPage = ({ navigation }) => {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.container}>
+            
             {/* Logo */}
             <View style={styles.logoContainer}>
-              <Image
-                source={logo}
-                style={styles.logo}
-                resizeMode="contain"
-              />
+              <Image source={logo} style={styles.logo} resizeMode="contain" />
             </View>
 
             {/* Form */}
             <View style={styles.form}>
-              {/* Username Input */}
+              
+              {/* Username */}
               <View style={styles.inputGroup}>
                 <TextInput
                   style={styles.input}
@@ -132,12 +149,10 @@ const LoginPage = ({ navigation }) => {
                   focusedInput === 'username' && styles.inputLineFocused,
                   errors.username && styles.inputLineError
                 ]} />
-                {errors.username && (
-                  <Text style={styles.errorText}>{errors.username}</Text>
-                )}
+                {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
               </View>
 
-              {/* Password Input */}
+              {/* Password */}
               <View style={styles.inputGroup}>
                 <View style={styles.passwordContainer}>
                   <TextInput
@@ -163,12 +178,10 @@ const LoginPage = ({ navigation }) => {
                   focusedInput === 'password' && styles.inputLineFocused,
                   errors.password && styles.inputLineError
                 ]} />
-                {errors.password && (
-                  <Text style={styles.errorText}>{errors.password}</Text>
-                )}
+                {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
               </View>
 
-              {/* Forgot Password */}
+              {/* Forgot password */}
               <View style={styles.forgotPasswordContainer}>
                 <TouchableOpacity onPress={handleForgotPassword}>
                   <Text style={styles.forgotPassword}>Şifremi Unuttum</Text>
@@ -192,6 +205,7 @@ const LoginPage = ({ navigation }) => {
             <View style={styles.footer}>
               <Text style={styles.footerText}>© 2023 YourEye All Rights Reserved.</Text>
             </View>
+
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

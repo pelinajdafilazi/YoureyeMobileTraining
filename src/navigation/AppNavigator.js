@@ -9,6 +9,7 @@ import { SCREENS } from '../constants';
 import OpeningPage from '../screens/OpeningPage';
 import InfoPage from '../screens/InfoPage';
 import LoginPage from '../screens/LoginPage';
+import HomePage from '../screens/HomePage'; // 🔥 Yeni eklenen Home Screen
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +36,7 @@ const AppNavigator = () => {
         component={OpeningPage}
         options={{ animation: 'fade' }}
       />
+
       <Stack.Screen 
         name={SCREENS.INFO} 
         component={InfoPage}
@@ -43,12 +45,19 @@ const AppNavigator = () => {
           animationDuration: 500,
         }}
       />
-      
+
       {/* Auth Flow */}
       <Stack.Screen 
         name={SCREENS.LOGIN} 
         component={LoginPage}
         options={{ animation: 'slide_from_bottom' }}
+      />
+
+      {/* 🔥 Home Page — Login sonrası yönlenecek sayfa */}
+      <Stack.Screen
+        name={SCREENS.HOME}
+        component={HomePage}
+        options={{ animation: 'slide_from_right' }}
       />
     </Stack.Navigator>
   );

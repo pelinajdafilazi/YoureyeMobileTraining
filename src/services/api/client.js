@@ -44,12 +44,38 @@ class ApiClient {
    * @returns {Promise<any>} Parsed response data
    */
   async handleResponse(response) {
-    const data = await response.json().catch(() => null);
+    const contentType = response.headers.get('content-type') || '';
+    let data;
+    
+    // Parse response based on content type
+    if (contentType.includes('application/json')) {
+      data = await response.json().catch(() => null);
+    } else if (contentType.includes('text/plain') || contentType.includes('text/html')) {
+      const textData = await response.text().catch(() => null);
+      // Try to parse as JSON if it looks like JSON, otherwise use as text
+      try {
+        data = JSON.parse(textData);
+      } catch {
+        data = textData || null;
+      }
+    } else {
+      // Try JSON first, fallback to text
+      try {
+        data = await response.json();
+      } catch {
+        data = await response.text().catch(() => null);
+      }
+    }
     
     if (!response.ok) {
-      const error = new Error(data?.message || 'Bir hata oluştu');
+      const error = new Error(
+        data?.message || 
+        (typeof data === 'string' ? data : null) || 
+        'Bir hata oluştu'
+      );
       error.status = response.status;
       error.data = data;
+      error.message = typeof data === 'string' ? data : (data?.message || error.message);
       throw error;
     }
     

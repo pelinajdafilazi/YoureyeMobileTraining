@@ -3,14 +3,14 @@
 
 const API = {
   BASE_URL: __DEV__ 
-    ? 'http://localhost:3000/api' 
-    : 'https://api.youreye.com',
+    ? 'http://194.110.169.210:8080' 
+    : 'http://194.110.169.210:8080',
   
   TIMEOUT: 30000, // 30 seconds
   
   ENDPOINTS: {
     // Auth
-    LOGIN: '/auth/login',
+    LOGIN: '/api/Login',
     REGISTER: '/auth/register',
     LOGOUT: '/auth/logout',
     REFRESH_TOKEN: '/auth/refresh',
